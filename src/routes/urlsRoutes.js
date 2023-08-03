@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { shortenUrl } from "../controllers/urlsController.js";
+import { getUrl, shortenUrl } from "../controllers/urlsController.js";
 import { validateAuth } from "../middlewares/validateAuthorization.js";
 import { validateSchema } from "../middlewares/validateSchema.js";
 import { schemaUrl } from "../schemas/urlsSchemas.js";
@@ -7,6 +7,7 @@ import { schemaUrl } from "../schemas/urlsSchemas.js";
 const urlRouter = Router();
 
 urlRouter.post("/urls/shorten", validateSchema(schemaUrl), validateAuth, shortenUrl );
+urlRouter.get("/urls/:id", getUrl);
 
 
 export default urlRouter;
