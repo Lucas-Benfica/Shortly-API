@@ -15,20 +15,19 @@ export async function signUp(req, res) {
         await db.query(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`, [name, email, hash]);
 
         res.status(201).json({ message: "User registered successfully" });
-    } catch (error) {
-        res.status(500).send("Error while signing up: " + error.message);
+    } catch (err) {
+        res.status(500).send("Error while signing up: " + err.message);
     }
 }
 
 export async function signIn(req, res){
-    const {email, password} = req.body;
     const {userData} = res.locals;
     const token = uuid();
     try{
-        await db.query(`INSERT INTO session ("userId", token) VALUES ($1, $2);`, [userData.id, token]);
+        await db.query(`INSERT INTO session ("userid", token) VALUES ($1, $2);`, [userData.id, token]);
 
         res.status(200).send({token: token, userName: userData.name});
     }catch (err) {
-        res.status(500).send("Error while signing in: " + error.message);  
+        res.status(500).send("Error while signing in: " + err.message);  
     }
 }

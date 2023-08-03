@@ -10,8 +10,8 @@ export async function validateAuth(req, res, next) {
         // Procurar na tebala se o token existe.
         //tokenOk = await db.collection("section").findOne({token});
         if (!tokenOk) return res.sendStatus(401);
-    } catch (error) {
-        res.status(500).send(error.message);
+    } catch (err) {
+        res.status(500).send(err.message);
     }
 
     res.locals.tokenOk = tokenOk;

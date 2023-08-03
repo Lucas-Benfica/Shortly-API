@@ -19,7 +19,7 @@ export async function validateLogin(req, res, next) {
 
         res.locals.userData = response.rows[0];
         next();
-    } catch (error) {
-        res.status(500).send("Error while validating login: " + error.message);
+    } catch (err) {
+        res.status(500).send("Error while validating login: " + err.message);
     }
 }
