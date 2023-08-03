@@ -12,8 +12,8 @@ export async function signUp(req, res) {
     try {
         const hash = bcrypt.hashSync(password, 10);
 
-        await db.query(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`, [name, email, hash]);
-
+        const user = await db.query(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`, [name, email, hash]);
+        console.log("aqui -------------\n", user);
         res.status(201).json({ message: "User registered successfully" });
     } catch (err) {
         res.status(500).send("Error while signing up: " + err.message);
@@ -24,7 +24,7 @@ export async function signIn(req, res){
     const {userData} = res.locals;
     const token = uuid();
     try{
-        await db.query(`INSERT INTO session ("userid", token) VALUES ($1, $2);`, [userData.id, token]);
+        await db.query(`INSERT INTO session ("userId", token) VALUES ($1, $2);`, [userData.id, token]);
 
         res.status(200).send({token: token, userName: userData.name});
     }catch (err) {
