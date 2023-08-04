@@ -52,11 +52,14 @@ export async function deleteUrl(req, res) {
     const { userId } = res.locals;
 
     try {
-
         const result = await db.query(`DELETE FROM urls WHERE "id" = $1 AND "userId" = $2 RETURNING *;`, [id, userId]);
 
         if (result.rowCount === 0) {
-            return res.status(404).send({ message: "Url does not exist or does not belong to the current user" });
+            return res.status(404).send({ message: "Url does not exist" });
+        }
+
+        if (result.rows[0].userId !== userId) {
+            return res.status(401).send({ message: "Url does not belong to the current user" });
         }
 
         res.sendStatus(204);
@@ -64,6 +67,7 @@ export async function deleteUrl(req, res) {
         res.status(500).send({ message: "Error while deleting url: " + err.message });
     }
 }
+
 
 export async function getRanking(req, res){
     
