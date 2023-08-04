@@ -29,3 +29,20 @@ export async function getUrl(req, res){
         res.status(500).send({message: "Error when fetching url by id: " + err.message});
     }
 }
+
+export async function openShortUrl(req, res){
+    const {shortUrl} = req.params;
+
+    try {
+        const urlData = await db.query(`SELECT url FROM urls WHERE "shortUrl"=$1`, [shortUrl]);
+        if(!urlData.rows[0]) return res.status(404).send({message: "Url does not exist"});
+        const url = urlData.rows[0];
+
+        await db.query(`UPDATE urls SET views = views + 1 WHERE "shortUrl"=$1`, [shortUrl]);
+
+        res.redirect(url);
+
+    } catch (err) {
+        res.status(500).send({message: "Error while opening url: " + err.message});
+    }
+}
