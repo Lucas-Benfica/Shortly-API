@@ -6,14 +6,14 @@ export async function signUp(req, res) {
     const { name, email, password, confirmPassword } = req.body;
 
     if (password !== confirmPassword) {
-        return res.status(409).send({ message: "Incompatible passwords" });
+        return res.status(422).send({ message: "Incompatible passwords" });
     }
 
     try {
         const hash = bcrypt.hashSync(password, 10);
 
-        const user = await db.query(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`, [name, email, hash]);
-        console.log("aqui -------------\n", user);
+        await db.query(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`, [name, email, hash]);
+        
         res.status(201).json({ message: "User registered successfully" });
     } catch (err) {
         res.status(500).send("Error while signing up: " + err.message);
