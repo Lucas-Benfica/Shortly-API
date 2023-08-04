@@ -54,8 +54,6 @@ export async function getUserInfo(req, res) {
             WHERE u.id = $1
             GROUP BY u.id, u.name;
         `, [userId]);
-        
-        console.log();
 
         res.status(200).send(userInfo.rows[0]);
 
