@@ -34,14 +34,34 @@ export async function openShortUrl(req, res){
     const {shortUrl} = req.params;
 
     try {
-        const urlData = await db.query(`SELECT url FROM urls WHERE "shortUrl"=$1`, [shortUrl]);
-        if(!urlData.rows[0]) return res.status(404).send({message: "Url does not exist"});
-        const url = urlData.rows[0];
 
-        await db.query(`UPDATE urls SET views = views + 1 WHERE "shortUrl"=$1`, [shortUrl]);
+        const result = await db.query(`UPDATE urls SET views = views + 1 WHERE "shortUrl" = $1 RETURNING url;`, [shortUrl]);
 
+        if (result.rowCount === 0) return res.status(404).send({ message: "Url does not exist" });
+
+        const url = result.rows[0].url;
         res.redirect(url);
 
+    } catch (err) {
+        res.status(500).send({message: "Error while opening url: " + err.message});
+    }
+}
+
+export async function deleteUrl(req, res){
+    const {id} = req.params;
+    const { userId } = res.locals;
+
+    try {
+        const urlData = await db.query(`SELECT * FROM urls WHERE "id"=$1;`, [id]);
+        if(!urlData.rows[0]) return res.status(404).send({message: "Url does not exist"});
+        
+        const urlInfo = urlData.rows[0];
+        
+        if(urlInfo.userId !== userId) return res.status(401).send({message: "The url does not belong to the current user"});
+
+        await db.query(`DELETE FROM urls where "id"=$1;`, [id]);
+
+        res.sendStatus(204);
     } catch (err) {
         res.status(500).send({message: "Error while opening url: " + err.message});
     }
