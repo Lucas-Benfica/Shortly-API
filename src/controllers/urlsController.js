@@ -47,22 +47,20 @@ export async function openShortUrl(req, res){
     }
 }
 
-export async function deleteUrl(req, res){
-    const {id} = req.params;
+export async function deleteUrl(req, res) {
+    const { id } = req.params;
     const { userId } = res.locals;
 
     try {
-        const urlData = await db.query(`SELECT * FROM urls WHERE "id"=$1;`, [id]);
-        if(!urlData.rows[0]) return res.status(404).send({message: "Url does not exist"});
-        
-        const urlInfo = urlData.rows[0];
-        
-        if(urlInfo.userId !== userId) return res.status(401).send({message: "The url does not belong to the current user"});
 
-        await db.query(`DELETE FROM urls where "id"=$1;`, [id]);
+        const result = await db.query(`DELETE FROM urls WHERE "id" = $1 AND "userId" = $2 RETURNING *;`, [id, userId]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).send({ message: "Url does not exist or does not belong to the current user" });
+        }
 
         res.sendStatus(204);
     } catch (err) {
-        res.status(500).send({message: "Error while opening url: " + err.message});
+        res.status(500).send({ message: "Error while deleting url: " + err.message });
     }
 }
