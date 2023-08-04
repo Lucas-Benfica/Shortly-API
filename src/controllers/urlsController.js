@@ -64,3 +64,21 @@ export async function deleteUrl(req, res) {
         res.status(500).send({ message: "Error while deleting url: " + err.message });
     }
 }
+
+export async function getRanking(req, res){
+    
+    try {
+        const ranking = await db.query(`
+            SELECT u.id, u.name, COUNT(ur.id) AS "linksCount", SUM(ur.views) AS "visitCount"
+            FROM users u
+            JOIN urls ur ON u.id = ur."userId"
+            GROUP BY u.id, u.name
+            ORDER BY "visitCount" DESC
+            LIMIT 10;`);
+
+        res.send(ranking.rows);
+
+    } catch (err) {
+        res.status(500).send({message: "Error when fetching url by id: " + err.message});
+    }
+}
